@@ -1,0 +1,69 @@
+Git & GitHub Practice – Day 5
+
+
+Today I practiced basic Git and GitHub commands and understood how version control works in real projects.
+Below are the commands I used step by step during my practice.
+
+1) Check Git installation
+git --version
+
+2) Configure Git (done one time only)
+git config --global user.name "Your Name"
+git config --global user.email "your-email@gmail.com"
+
+3) Check Git configuration
+git config --global user.name
+git config --global user.email
+
+4) Initialize a Git repository
+git init
+
+5) Check repository status
+git status
+
+6) Add files to staging area
+git add filename
+git add .
+
+7) Commit changes
+git commit -m "Initial commit"
+
+8) Create a new repository on GitHub
+(Repository created using GitHub website)
+
+9) Connect local repository to GitHub repository
+git remote add origin https://github.com/username/repository-name.git
+
+10) Check remote repository
+git remote -v
+
+11) Rename branch to main
+git branch -M main
+
+12) Push code to GitHub
+git push -u origin main
+
+13) Check commit history
+git log
+
+14) Clone an existing repository
+git clone https://github.com/username/repository-name.git
+
+15) Create and switch to a new branch
+git checkout -b branch-name
+
+16) Switch between branches
+git checkout branch-name
+
+17) Pull latest changes from GitHub
+git pull origin main
+
+18) Push changes to a specific branch
+git push origin branch-name
+
+19) Check differences
+git diff
+
+20) Remove file from staging
+git reset filename
+
