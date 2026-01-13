@@ -9,7 +9,7 @@ if (country == "USA" && age >= 16) {
 console.log(text);
 
 
-//multiple if statement 
+//multiple if statement.
 let agee = 22;
 let hasID = true;
 let hasTicket = false;
@@ -27,7 +27,7 @@ if (hasTicket) {
 }
 
 
-//if...else statement
+//if...else statementt
 let time = 20;
 let greeting;
 if (time < 18) {
