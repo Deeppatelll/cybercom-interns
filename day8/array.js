@@ -94,3 +94,59 @@ let resultt = summ(...numberss);
 
 console.log(resultt); // 6
 
+//slice method
+let array = [10, 20, 30, 40, 50];
+let sliced = array.slice(1, 4);
+console.log(sliced); // [20, 30, 40]
+console.log(array); // [10, 20, 30, 40, 50]
+//splice method
+let arr = [10, 20, 30, 40, 50];
+arr.splice(2, 1, 25, 35);
+console.log(arr); // [10, 20, 25, 35, 40, 50]
+
+//.find,.filter,.includes methods  searching in array
+
+let arrs = [10, 20, 30];
+
+let total = arrs.reduce((sum, n) => sum + n, 0);
+
+console.log(total);
+//reverse method
+let arr22 = [1, 2, 3];
+arr22.reverse();
+
+console.log(arr22);
+
+//reduce method
+let arr33 = [1, 2, 3, 4];
+let totall = arr33.reduce(function(sum, value) {
+    return sum + value;
+}, 0);
+
+console.log(totall);
+
+
+//array methods summary
+//concate
+//find,filter,includes
+//map
+let arrsss = [[1, 2], [3, 4]];
+
+let resulttt = arrsss.flat();
+
+console.log(resulttt);
+// [1, 2, 3, 4]
+
+let ss = [1, 2, 3];
+let resultq= ss.map(x => [x, x * 2]);
+
+console.log(resultq);
+// [[1, 2], [2, 4], [3, 6]]
+let resultqq = ss.flatMap(x => [x, x * 2]);
+
+
+let arrr = [1, 2, 3, 4];
+let newArr = arrr.toSpliced(1, 2);
+
+console.log(arrr);// [1, 2, 3, 4]
+console.log(newArr);// [1, 4]
