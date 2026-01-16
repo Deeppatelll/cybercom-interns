@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Js Events</title>
+</head>
+<body>
+    <h1 id="event-heading">"JavaScript Events"</h1>
+    <button id="myButton">Click Me!</button>
+    <p id="displayText">Button not clicked yet.</p>
+</body>
+<script>
+    // Function to handle button click event
+   const but= document.getElementById("myButton");
+   but.addEventListener("click", function() {
+      console.log("Button was clicked!");
+   });
+   // event object(e)
+
+    but.addEventListener("click", function(e) {
+        console.log("Event Type: " + e.type);
+        console.log("Button Text: " + e.target.innerText);
+        const displayText = document.getElementById("displayText");
+    });
+</script>
+</html>
