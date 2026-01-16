@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>day-9</title>
+</head>
+<body>
+    <h1 id="heading">"Cybercom-Creation"</h1>
+    <h2 class="he">class practice1</h2>
+    <h2 class="he">class practice1</h2>
+    <h3  class="hee">practice 2</h3>
+    <h3 class="hee">practice 2</h3>
+    <h4 class="hi">practice 3</h4>
+    <h4 class="hi">practice 3</h4>
+
+    <div class="deep">
+        <h5 id="de">computer science</h5>
+    </div>
+</body>
+<script>
+    console.log("Hello World");
+    
+    const heading=document.getElementById("heading");
+    heading.innerText="Hello Worlddd";
+    heading.style.color="blue";
+    console.log(heading);
+    console.log(heading.innerText);
+    console.log(heading.parentElement)
+
+//class practice
+    const classElements=document.getElementsByClassName("he");
+    for(let i=0;i<classElements.length;i++){
+        classElements[i].style.color="green";
+        console.log(classElements[i].innerText);
+    }
+//tag practice
+    const h2Elements=document.getElementsByTagName("h2");
+    h2Elements[0].style.backgroundColor="yellow";
+
+//getelement by tag name vs queryselector all
+const h2s = document.querySelectorAll("h3");
+
+for (let i = 0; i < h2s.length; i++) {
+    h2s[i].style.backgroundColor = "yellow";
+}
+
+const h2ss = document.getElementsByTagName("h4");
+
+for (let i = 0; i < h2ss.length; i++) {
+    h2ss[i].style.backgroundColor = "yellow";
+}
+//query selector practice
+const qs=document.querySelector(".hi");
+qs.style.color="white";
+
+//query selector all practice
+const qsa=document.querySelectorAll(".hee");
+qsa.forEach((element)=>{
+    element.style.color="red";
+});
+//parent element traversing
+let p = document.getElementById("de");
+console.log(p.parentElement);
+
+//append child
+
+let newElement = document.createElement("h6");
+newElement.innerText = "This is a new h6 element";
+p.appendChild(newElement);
+</script>
+</html>
