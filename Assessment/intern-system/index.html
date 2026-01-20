@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Frontend Intern Operations System</title>
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/components.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Authentication Section -->
+        <div id="auth-section" class="auth-container">
+            <div class="auth-box">
+                <p style="text-align: center; color: #666; margin-bottom: 2em;">Demo Login Credentials</p>
+                
+                <div style="background: #ecf0f1; padding: 1em; border-radius: 4px; margin-bottom: 2em; font-size: 0.9em;">
+                    <div style="margin-bottom: 0.5em;"><strong>👨‍💼 Admin:</strong> admin / admin123</div>
+                    <div><strong>👤 User:</strong> user / user123</div>
+                </div>
+
+                <form id="login-form" class="form">
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <input type="text" id="username" name="username" placeholder="Enter username" required autofocus>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" placeholder="Enter password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Login</button>
+                </form>
+                <p id="auth-error" class="error-message" style="display: none;"></p>
+            </div>
+        </div>
+
+        <!-- Main Application -->
+        <div id="main-app" class="main-container" style="display: none;">
+            <!-- Sidebar Navigation -->
+            <aside class="sidebar">
+                <div class="sidebar-header">
+                    <h1>Intern Administration</h1>
+                </div>
+                <nav class="nav-tabs">
+                    <button class="nav-btn active" data-view="dashboard">
+                        <span class="nav-icon">📊</span>
+                        <span>Dashboard</span>
+                    </button>
+                    <button class="nav-btn" data-view="interns">
+                        <span class="nav-icon">👥</span>
+                        <span>Manage Interns</span>
+                    </button>
+                    <button class="nav-btn" data-view="tasks">
+                        <span class="nav-icon">📋</span>
+                        <span>Manage Tasks</span>
+                    </button>
+                    <button class="nav-btn" data-view="logs">
+                        <span class="nav-icon">📝</span>
+                        <span>Activity Logs</span>
+                    </button>
+                </nav>
+                <div class="sidebar-footer">
+                    <div id="user-display" class="user-display"></div>
+                    <button id="logout-btn" class="btn btn-secondary">Logout</button>
+                </div>
+            </aside>
+
+            <!-- Right Content Section -->
+            <div class="main-content">
+                <!-- Header with Title -->
+                <header class="header">
+                    
+                </header>
+
+                <!-- Global Error/Loading Section -->
+                <div id="global-feedback" class="feedback-container">
+                    <div id="error-banner" class="banner banner-error" style="display: none;">
+                        <span id="error-text"></span>
+                        <button class="close-btn" onclick="clearError()">×</button>
+                    </div>
+                    <div id="loading-banner" class="banner banner-loading" style="display: none;">
+                        <span>⏳ Processing...</span>
+                    </div>
+                </div>
+
+                <!-- Main Content Area -->
+                <main class="content">
+                <!-- Dashboard View -->
+                <section id="dashboard" class="view active">
+                    <h2>Dashboard</h2>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <h3>Total Interns</h3>
+                            <p id="stat-total-interns" class="stat-value">0</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Active Interns</h3>
+                            <p id="stat-active-interns" class="stat-value">0</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Total Tasks</h3>
+                            <p id="stat-total-tasks" class="stat-value">0</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Pending Tasks</h3>
+                            <p id="stat-pending-tasks" class="stat-value">0</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Manage Interns View -->
+                <section id="interns" class="view">
+                    <h2>Intern Management</h2>
+                    
+                    <div class="section-box admin-only" id="create-intern-section">
+                        <h3>Create New Intern</h3>
+                        <form id="intern-form" class="form">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="intern-name">Full Name *</label>
+                                    <input type="text" id="intern-name" name="name" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="intern-email">Email *</label>
+                                    <input type="email" id="intern-email" name="email" required>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="intern-department">Department</label>
+                                    <select id="intern-department" name="department">
+                                        <option value="">Select...</option>
+                                        <option value="Engineering">Engineering</option>
+                                        <option value="Design">Design</option>
+                                        <option value="Marketing">Marketing</option>
+                                        <option value="Sales">Sales</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="intern-skills">Skills (comma-separated) *</label>
+                                    <input type="text" id="intern-skills" name="skills" placeholder="e.g. JavaScript, React, Node.js" required>
+                                </div>
+                            </div>
+                            <div id="intern-form-error" class="error-message" style="display: none;"></div>
+                            <button type="submit" class="btn btn-primary">Create Intern</button>
+                        </form>
+                    </div>
+
+                    <div class="section-box">
+                        <h3>Filter & View Interns</h3>
+                        <div class="filter-group">
+                            <select id="filter-status" class="filter-select">
+                                <option value="">All Status</option>
+                                <option value="ONBOARDING">Onboarding</option>
+                                <option value="ACTIVE">Active</option>
+                                <option value="EXITED">Exited</option>
+                            </select>
+                            <input type="text" id="filter-skills" class="filter-input" placeholder="Filter by skills...">
+                            <button class="btn btn-secondary" onclick="applyInternFilters()">Apply Filters</button>
+                            <button class="btn btn-secondary" onclick="clearInternFilters()" style="background-color: #95a5a6;">Clear Filters</button>
+                        </div>
+                    </div>
+
+                    <div class="section-box">
+                        <h3>Interns List</h3>
+                        <div id="interns-table-container">
+                            <table id="interns-table" class="table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Department</th>
+                                        <th>Skills</th>
+                                        <th>Status</th>
+                                        <th>Tasks Assigned</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="interns-tbody">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Manage Tasks View -->
+                <section id="tasks" class="view">
+                    <h2>Task Management</h2>
+                    
+                    <div class="section-box admin-only" id="create-task-section">
+                        <h3>Create New Task</h3>
+                        <form id="task-form" class="form">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="task-title">Task Title *</label>
+                                    <input type="text" id="task-title" name="title" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="task-hours">Estimated Hours *</label>
+                                    <input type="number" id="task-hours" name="hours" min="1" required>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="task-skills">Required Skills (comma-separated) *</label>
+                                    <input type="text" id="task-skills" name="requiredSkills" placeholder="e.g. JavaScript, React" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="task-priority">Priority</label>
+                                    <select id="task-priority" name="priority">
+                                        <option value="LOW">Low</option>
+                                        <option value="MEDIUM" selected>Medium</option>
+                                        <option value="HIGH">High</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="task-description">Description</label>
+                                <textarea id="task-description" name="description" rows="4"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="task-dependencies">Depends On (Task IDs, comma-separated)</label>
+                                <input type="text" id="task-dependencies" name="dependencies" placeholder="e.g. T001, T002">
+                            </div>
+                            <div id="task-form-error" class="error-message" style="display: none;"></div>
+                            <button type="submit" class="btn btn-primary">Create Task</button>
+                        </form>
+                    </div>
+
+                    <div class="section-box admin-only" id="assign-task-section">
+                        <h3>Task Assignment</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="assign-task-select">Select Task</label>
+                                <select id="assign-task-select">
+                                    <option value="">Choose a task...</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="assign-intern-select">Assign to Intern</label>
+                                <select id="assign-intern-select">
+                                    <option value="">Choose an intern...</option>
+                                </select>
+                            </div>
+                            <button class="btn btn-primary" onclick="assignTask()">Assign</button>
+                        </div>
+                        <div id="assign-error" class="error-message" style="display: none;"></div>
+                    </div>
+
+                    <div class="section-box">
+                        <h3>All Tasks</h3>
+                        <div id="tasks-table-container">
+                            <table id="tasks-table" class="table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Title</th>
+                                        <th>Priority</th>
+                                        <th>Status</th>
+                                        <th>Hours</th>
+                                        <th>Required Skills</th>
+                                        <th>Assigned To</th>
+                                        <th>Dependencies</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tasks-tbody">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Activity Logs View -->
+                <section id="logs" class="view">
+                    <h2>Activity Logs</h2>
+                    <div class="section-box">
+                        <div class="filter-group">
+                            <select id="filter-log-action" class="filter-select">
+                                <option value="">All Actions</option>
+                                <option value="CREATE_INTERN">Create Intern</option>
+                                <option value="CREATE_TASK">Create Task</option>
+                                <option value="ASSIGN_TASK">Assign Task</option>
+                                <option value="UPDATE_STATUS">Update Status</option>
+                                <option value="COMPLETE_TASK">Complete Task</option>
+                            </select>
+                            <button class="btn btn-secondary" onclick="applyLogFilters()">Apply Filter</button>
+                        </div>
+                        <div id="logs-container">
+                            <table id="logs-table" class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Timestamp</th>
+                                        <th>Action</th>
+                                        <th>Details</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="logs-tbody">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+            </main>
+
+            <!-- Modal for Status Update -->
+            <div id="status-modal" class="modal" style="display: none;">
+                <div class="modal-content">
+                    <h3>Update Status</h3>
+                    <div class="form-group">
+                        <label for="modal-status-select">New Status</label>
+                        <select id="modal-status-select">
+                            <option value="ONBOARDING">Onboarding</option>
+                            <option value="ACTIVE">Active</option>
+                            <option value="EXITED">Exited</option>
+                        </select>
+                    </div>
+                    <div class="modal-actions">
+                        <button class="btn btn-primary" onclick="confirmStatusUpdate()">Update</button>
+                        <button class="btn btn-secondary" onclick="closeStatusModal()">Cancel</button>
+                    </div>
+                    <div id="modal-error" class="error-message" style="display: none;"></div>
+                </div>
+            </div>
+
+            <!-- Modal for Task Status Update -->
+            <div id="task-status-modal" class="modal" style="display: none;">
+                <div class="modal-content">
+                    <h3>Update Task Status</h3>
+                    <div class="form-group">
+                        <label for="modal-task-status-select">New Status</label>
+                        <select id="modal-task-status-select">
+                            <option value="TODO">To Do</option>
+                            <option value="IN_PROGRESS">In Progress</option>
+                            <option value="DONE">Done</option>
+                            <option value="BLOCKED">Blocked</option>
+                        </select>
+                    </div>
+                    <div id="task-modal-message" class="info-message" style="display: none;"></div>
+                    <div class="modal-actions">
+                        <button class="btn btn-primary" onclick="confirmTaskStatusUpdate()">Update</button>
+                        <button class="btn btn-secondary" onclick="closeTaskStatusModal()">Cancel</button>
+                    </div>
+                    <div id="task-modal-error" class="error-message" style="display: none;"></div>
+                </div>
+            </div>
+            </main>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/state.js"></script>
+    <script src="js/validators.js"></script>
+    <script src="js/fake-server.js"></script>
+    <script src="js/rules-engine.js"></script>
+    <script src="js/renderer.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
