@@ -1,3 +1,6 @@
+<?php
+session_start();
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -12,12 +15,16 @@
       <div class="logo">🛒 EasyCart</div>
       <nav>
         <ul class="nav-links">
-          <li><a href="index.html">Home</a></li>
-          <li><a href="products.html">Products</a></li>
-          <li><a href="cart.html">Cart</a></li>
-          <li><a href="login.html" class="active">Login</a></li>
+          <li><a href="index.php">Home</a></li>
+          <li><a href="products.php">Products</a></li>
+          <li><a href="cart.php">Cart</a></li>
+          <li><a href="login.php" class="active">Login</a></li>
         </ul>
       </nav>
+      <form method="GET" action="products.php" style="display: flex; align-items: center; margin-left: 2rem;">
+        <input type="text" name="search" placeholder="Search products..." style="padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 4px; width: 200px;">
+        <button type="submit" style="margin-left: 8px; padding: 8px 16px; background-color: var(--primary-color); color: white; border: none; border-radius: 4px; cursor: pointer;">Search</button>
+      </form>
     </div>
   </header>
 
@@ -50,7 +57,7 @@
       </form>
 
       <div class="auth-link">
-        <p>Already have an account? <a href="login.html">Login here</a></p>
+        <p>Already have an account? <a href="login.php">Login here</a></p>
       </div>
 
       <div style="margin-top: 2rem; padding-top: 2rem; border-top: 1px solid var(--border-color); text-align: center; color: var(--text-light); font-size: 0.9rem;">
