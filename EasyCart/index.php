@@ -1,3 +1,61 @@
+<?php
+session_start();
+
+// Static product data
+$products = array(
+  array(
+    'id' => 1,
+    'name' => 'Fresh Apples',
+    'price' => 120,
+    'quantity' => '1 kg',
+    'image' => 'images/apple.jpg',
+    'category' => 'Fruits'
+  ),
+  array(
+    'id' => 2,
+    'name' => 'Yellow Bananas',
+    'price' => 60,
+    'quantity' => '6 pcs',
+    'image' => 'images/banana.jpg',
+    'category' => 'Fruits'
+  ),
+  array(
+    'id' => 3,
+    'name' => 'Fresh Milk',
+    'price' => 65,
+    'quantity' => '1 Liter',
+    'image' => 'images/milk.jpg',
+    'category' => 'Dairy'
+  ),
+  array(
+    'id' => 4,
+    'name' => 'Whole Wheat Bread',
+    'price' => 35,
+    'quantity' => '400g',
+    'image' => 'images/bread.jpg',
+    'category' => 'Bakery'
+  ),
+  array(
+    'id' => 5,
+    'name' => 'Basmati Rice',
+    'price' => 450,
+    'quantity' => '5 kg',
+    'image' => 'images/rice.jpg',
+    'category' => 'Staples'
+  ),
+  array(
+    'id' => 6,
+    'name' => 'Brown Eggs',
+    'price' => 72,
+    'quantity' => '12 pcs',
+    'image' => 'images/eggs.jpg',
+    'category' => 'Dairy'
+  )
+);
+
+// Get first 4 products for featured section
+$featured_products = array_slice($products, 0, 5);
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -12,12 +70,16 @@
       <div class="logo">🛒 EasyCart</div>
       <nav>
         <ul class="nav-links">
-          <li><a href="index.html" class="active">Home</a></li>
-          <li><a href="products.html">Products</a></li>
-          <li><a href="cart.html">Cart</a></li>
-          <li><a href="login.html">Login</a></li>
+          <li><a href="index.php" class="active">Home</a></li>
+          <li><a href="products.php">Products</a></li>
+          <li><a href="cart.php">Cart</a></li>
+          <li><a href="login.php">Login</a></li>
         </ul>
       </nav>
+      <form method="GET" action="products.php" style="display: flex; align-items: center; margin-left: 2rem;">
+        <input type="text" name="search" placeholder="Search products..." style="padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 4px; width: 200px;">
+        <button type="submit" style="margin-left: 8px; padding: 8px 16px; background-color: var(--primary-color); color: white; border: none; border-radius: 4px; cursor: pointer;">Search</button>
+      </form>
     </div>
   </header>
 
@@ -35,7 +97,7 @@
             <div class="hero-content">
               <h1>Fresh Groceries in 30 Minutes</h1>
               <p>Get farm-fresh produce delivered to your doorstep</p>
-              <a href="products.html" class="btn btn-primary">Shop Now</a>
+              <a href="products.php" class="btn btn-primary">Shop Now</a>
             </div>
           </div>
 
@@ -59,77 +121,19 @@
       </div>
       
       <div class="products-grid">
+        <?php foreach($featured_products as $product): ?>
         <div class="product-card">
           <div class="product-image">
-            <img src="images/apple.jpg" alt="Fresh Apples">
+            <img src="<?php echo $product['image']; ?>" alt="<?php echo $product['name']; ?>">
           </div>
           <div class="product-info">
-            <div class="product-name">Fresh Apples</div>
-            <div class="product-quantity">1 kg</div>
-            <div class="product-price">₹120</div>
-            <a href="product-detail.html">View Details →</a>
+            <div class="product-name"><?php echo $product['name']; ?></div>
+            <div class="product-quantity"><?php echo $product['quantity']; ?></div>
+            <div class="product-price">₹<?php echo $product['price']; ?></div>
+            <a href="product-detail.php?id=<?php echo $product['id']; ?>">View Details →</a>
           </div>
         </div>
-
-        <div class="product-card">
-          <div class="product-image">
-            <img src="images/banana.jpg" alt="Yellow Bananas">
-          </div>
-          <div class="product-info">
-            <div class="product-name">Yellow Bananas</div>
-            <div class="product-quantity">6 pcs</div>
-            <div class="product-price">₹60</div>
-            <a href="product-detail.html">View Details →</a>
-          </div>
-        </div>
-
-        <div class="product-card">
-          <div class="product-image">
-            <img src="images/milk.jpg" alt="Fresh Milk">
-          </div>
-          <div class="product-info">
-            <div class="product-name">Fresh Milk</div>
-            <div class="product-quantity">1 Liter</div>
-            <div class="product-price">₹65</div>
-            <a href="product-detail.html">View Details →</a>
-          </div>
-        </div>
-
-        <div class="product-card">
-          <div class="product-image">
-            <img src="images/bread.jpg" alt="Whole Wheat Bread">
-          </div>
-          <div class="product-info">
-            <div class="product-name">Whole Wheat Bread</div>
-            <div class="product-quantity">400g</div>
-            <div class="product-price">₹35</div>
-            <a href="product-detail.html">View Details →</a>
-          </div>
-        </div>
-
-        <div class="product-card">
-          <div class="product-image">
-            <img src="images/rice.jpg" alt="Basmati Rice">
-          </div>
-          <div class="product-info">
-            <div class="product-name">Basmati Rice</div>
-            <div class="product-quantity">5 kg</div>
-            <div class="product-price">₹450</div>
-            <a href="product-detail.html">View Details →</a>
-          </div>
-        </div>
-
-        <div class="product-card">
-          <div class="product-image">
-            <img src="images/eggs.jpg" alt="Brown Eggs">
-          </div>
-          <div class="product-info">
-            <div class="product-name">Brown Eggs</div>
-            <div class="product-quantity">12 pcs</div>
-            <div class="product-price">₹72</div>
-            <a href="product-detail.html">View Details →</a>
-          </div>
-        </div>
+        <?php endforeach; ?>
       </div>
     </section>
 
@@ -142,25 +146,25 @@
         </div>
         
         <div class="categories">
-          <a href="products.html" class="category-card">
+          <a href="products.php" class="category-card">
             <div class="category-icon">🥕</div>
             <h3>Fruits & Vegetables</h3>
             <p>Fresh produce daily</p>
           </a>
 
-          <a href="products.html" class="category-card">
+          <a href="products.php" class="category-card">
             <div class="category-icon">🥛</div>
             <h3>Dairy & Eggs</h3>
             <p>Premium dairy products</p>
           </a>
 
-          <a href="products.html" class="category-card">
+          <a href="products.php" class="category-card">
             <div class="category-icon">🍪</div>
             <h3>Snacks</h3>
             <p>Healthy snack options</p>
           </a>
 
-          <a href="products.html" class="category-card">
+          <a href="products.php" class="category-card">
             <div class="category-icon">🍚</div>
             <h3>Staples & Grains</h3>
             <p>Essential staples</p>
@@ -177,12 +181,12 @@
       </div>
       
       <div class="brands">
-        <a href="products.html" class="brand-box">Amul Dairy</a>
-        <a href="products.html" class="brand-box">Aashirvaad</a>
-        <a href="products.html" class="brand-box">Haldiram's</a>
-        <a href="products.html" class="brand-box">Britannia</a>
-        <a href="products.html" class="brand-box">Mother Dairy</a>
-        <a href="products.html" class="brand-box">Nestlé</a>
+        <a href="products.php" class="brand-box">Amul Dairy</a>
+        <a href="products.php" class="brand-box">Aashirvaad</a>
+        <a href="products.php" class="brand-box">Haldiram's</a>
+        <a href="products.php" class="brand-box">Britannia</a>
+        <a href="products.php" class="brand-box">Mother Dairy</a>
+        <a href="products.php" class="brand-box">Nestlé</a>
       </div>
     </section>
   </main>
