@@ -1,29 +1,6 @@
 <?php
 session_start();
-
-// Static product data
-$products = array(
-  array('id' => 1, 'name' => 'Fresh Apples', 'price' => 120, 'quantity' => '1 kg', 'image' => 'images/apple.jpg', 'category' => 'Fruits'),
-  array('id' => 2, 'name' => 'Yellow Bananas', 'price' => 60, 'quantity' => '6 pcs', 'image' => 'images/banana.jpg', 'category' => 'Fruits'),
-  array('id' => 3, 'name' => 'Fresh Milk', 'price' => 65, 'quantity' => '1 Liter', 'image' => 'images/milk.jpg', 'category' => 'Dairy'),
-  array('id' => 4, 'name' => 'Whole Wheat Bread', 'price' => 35, 'quantity' => '400g', 'image' => 'images/bread.jpg', 'category' => 'Bakery'),
-  array('id' => 5, 'name' => 'Basmati Rice', 'price' => 450, 'quantity' => '5 kg', 'image' => 'images/rice.jpg', 'category' => 'Staples'),
-  array('id' => 6, 'name' => 'Cooking Oil', 'price' => 210, 'quantity' => '1 Liter', 'image' => 'images/oil.jpg', 'category' => 'Staples'),
-  array('id' => 7, 'name' => 'Brown Eggs', 'price' => 72, 'quantity' => '12 pcs', 'image' => 'images/eggs.jpg', 'category' => 'Dairy'),
-  array('id' => 8, 'name' => 'Fresh Onions', 'price' => 40, 'quantity' => '1 kg', 'image' => 'images/onion.jpg', 'category' => 'Vegetables'),
-  array('id' => 9, 'name' => 'Ripe Tomatoes', 'price' => 50, 'quantity' => '1 kg', 'image' => 'images/tomato.jpg', 'category' => 'Vegetables'),
-  array('id' => 10, 'name' => 'Potato Chips', 'price' => 45, 'quantity' => '200g', 'image' => 'images/chips.jpg', 'category' => 'Snacks')
-);
-
-// Function to find product by ID
-function getProductById($id, $products) {
-  foreach($products as $product) {
-    if($product['id'] == $id) {
-      return $product;
-    }
-  }
-  return null;
-}
+require_once __DIR__ . '/data/products.data.php';
 
 // Handle quantity update via POST form submission
 if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_quantities'])) {
@@ -41,6 +18,23 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_quantities'])) {
   }
   
   $_SESSION['cart'] = $cart_items_temp;
+}
+
+// Handle delete product from cart via POST
+if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['delete_product'])) {
+  $product_id_to_delete = isset($_POST['product_id']) ? (int)$_POST['product_id'] : 0;
+  
+  if($product_id_to_delete > 0) {
+    $cart_items_temp = isset($_SESSION['cart']) ? $_SESSION['cart'] : array();
+    
+    // Remove the product from cart
+    $_SESSION['cart'] = array_filter($cart_items_temp, function($item) use ($product_id_to_delete) {
+      return $item['id'] != $product_id_to_delete;
+    });
+    
+    // Re-index array to maintain consistency
+    $_SESSION['cart'] = array_values($_SESSION['cart']);
+  }
 }
 
 // Calculate cart totals
@@ -106,6 +100,7 @@ $total = $subtotal_before_tax + $gst;
                   <th>Quantity</th>
                   <th>Price</th>
                   <th>Total</th>
+                  <th>Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -122,6 +117,14 @@ $total = $subtotal_before_tax + $gst;
                   </td>
                   <td>₹<?php echo $product['price']; ?></td>
                   <td>₹<?php echo $item_total; ?></td>
+                  <td>
+                    <form method="POST" style="display: inline;">
+                      <input type="hidden" name="product_id" value="<?php echo $item['id']; ?>">
+                      <button type="submit" name="delete_product" class="btn-delete" style="background-color: #dc2626; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 0.85rem;">
+                        🗑️ Delete
+                      </button>
+                    </form>
+                  </td>
                 </tr>
                 <?php 
                   endif;
@@ -129,8 +132,7 @@ $total = $subtotal_before_tax + $gst;
                 ?>
               </tbody>
             </table>
-            <button type="submit" name="update_quantities" class="btn btn-primary" style="margin-top: 1rem;">Update Quantities</button>
-          </form>
+           
           <?php else: ?>
           <div style="padding: 2rem; text-align: center; background: var(--light-gray); border-radius: 8px;">
             <p style="font-size: 1.1rem; color: var(--text-light);">Your cart is empty</p>
@@ -235,5 +237,7 @@ $total = $subtotal_before_tax + $gst;
       </div>
     </div>
   </footer>
+  <script src="assets/js/phase3.js"></script>
 </body>
 </html>
+

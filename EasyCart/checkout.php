@@ -1,29 +1,6 @@
 <?php
 session_start();
-
-// Static product data
-$products = array(
-  array('id' => 1, 'name' => 'Fresh Apples', 'price' => 120, 'quantity' => '1 kg', 'image' => 'images/apple.jpg', 'category' => 'Fruits'),
-  array('id' => 2, 'name' => 'Yellow Bananas', 'price' => 60, 'quantity' => '6 pcs', 'image' => 'images/banana.jpg', 'category' => 'Fruits'),
-  array('id' => 3, 'name' => 'Fresh Milk', 'price' => 65, 'quantity' => '1 Liter', 'image' => 'images/milk.jpg', 'category' => 'Dairy'),
-  array('id' => 4, 'name' => 'Whole Wheat Bread', 'price' => 35, 'quantity' => '400g', 'image' => 'images/bread.jpg', 'category' => 'Bakery'),
-  array('id' => 5, 'name' => 'Basmati Rice', 'price' => 450, 'quantity' => '5 kg', 'image' => 'images/rice.jpg', 'category' => 'Staples'),
-  array('id' => 6, 'name' => 'Cooking Oil', 'price' => 210, 'quantity' => '1 Liter', 'image' => 'images/oil.jpg', 'category' => 'Staples'),
-  array('id' => 7, 'name' => 'Brown Eggs', 'price' => 72, 'quantity' => '12 pcs', 'image' => 'images/eggs.jpg', 'category' => 'Dairy'),
-  array('id' => 8, 'name' => 'Fresh Onions', 'price' => 40, 'quantity' => '1 kg', 'image' => 'images/onion.jpg', 'category' => 'Vegetables'),
-  array('id' => 9, 'name' => 'Ripe Tomatoes', 'price' => 50, 'quantity' => '1 kg', 'image' => 'images/tomato.jpg', 'category' => 'Vegetables'),
-  array('id' => 10, 'name' => 'Potato Chips', 'price' => 45, 'quantity' => '200g', 'image' => 'images/chips.jpg', 'category' => 'Snacks')
-);
-
-// Function to find product by ID
-function getProductById($id, $products) {
-  foreach($products as $product) {
-    if($product['id'] == $id) {
-      return $product;
-    }
-  }
-  return null;
-}
+require_once __DIR__ . '/data/products.data.php';
 
 // Get cart data and calculate totals
 $cart_items = isset($_SESSION['cart']) ? $_SESSION['cart'] : array();
@@ -270,6 +247,6 @@ $total = $subtotal_before_tax + $gst;
       </div>
     </div>
   </footer>
+  <script src="assets/js/phase3.js"></script>
 </body>
 </html>
-

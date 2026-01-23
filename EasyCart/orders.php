@@ -166,5 +166,6 @@ $orders = array(
       </div>
     </div>
   </footer>
+  <script src="assets/js/phase3.js"></script>
 </body>
 </html>

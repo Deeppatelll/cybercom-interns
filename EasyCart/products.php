@@ -2,118 +2,9 @@
 session_start();
 
 // Static product data - all products
-$products = array(
-  array(
-    'id' => 1,
-    'name' => 'Fresh Apples',
-    'price' => 120,
-    'quantity' => '1 kg',
-    'image' => 'images/apple.jpg',
-    'category' => 'Fruits',
-    'brand' => 'Green Valley',
-    'unit' => 'kg',
-    'weight_value' => 1
-  ),
-  array(
-    'id' => 2,
-    'name' => 'Yellow Bananas',
-    'price' => 60,
-    'quantity' => '6 pcs',
-    'image' => 'images/banana.jpg',
-    'category' => 'Fruits',
-    'brand' => 'Fresh Harvest',
-    'unit' => 'pcs',
-    'weight_value' => 6
-  ),
-  array(
-    'id' => 3,
-    'name' => 'Fresh Milk',
-    'price' => 65,
-    'quantity' => '1 Liter',
-    'image' => 'images/milk.jpg',
-    'category' => 'Dairy',
-    'brand' => 'Pure Dairy',
-    'unit' => 'liter',
-    'weight_value' => 1
-  ),
-  array(
-    'id' => 4,
-    'name' => 'Whole Wheat Bread',
-    'price' => 35,
-    'quantity' => '400g',
-    'image' => 'images/bread.jpg',
-    'category' => 'Bakery',
-    'brand' => 'Baker\'s Pride',
-    'unit' => 'pcs',
-    'weight_value' => 1
-  ),
-  array(
-    'id' => 5,
-    'name' => 'Basmati Rice',
-    'price' => 450,
-    'quantity' => '5 kg',
-    'image' => 'images/rice.jpg',
-    'category' => 'Staples',
-    'brand' => 'Rajesh',
-    'unit' => 'kg',
-    'weight_value' => 5
-  ),
-  array(
-    'id' => 6,
-    'name' => 'Cooking Oil',
-    'price' => 210,
-    'quantity' => '1 Liter',
-    'image' => 'images/oil.jpg',
-    'category' => 'Staples',
-    'brand' => 'Gold Standard',
-    'unit' => 'liter',
-    'weight_value' => 1
-  ),
-  array(
-    'id' => 7,
-    'name' => 'Brown Eggs',
-    'price' => 72,
-    'quantity' => '12 pcs',
-    'image' => 'images/eggs.jpg',
-    'category' => 'Dairy',
-    'brand' => 'Farm Fresh',
-    'unit' => 'pcs',
-    'weight_value' => 12
-  ),
-  array(
-    'id' => 8,
-    'name' => 'Fresh Onions',
-    'price' => 40,
-    'quantity' => '1 kg',
-    'image' => 'images/onion.jpg',
-    'category' => 'Vegetables',
-    'brand' => 'Green Valley',
-    'unit' => 'kg',
-    'weight_value' => 1
-  ),
-  array(
-    'id' => 9,
-    'name' => 'Ripe Tomatoes',
-    'price' => 50,
-    'quantity' => '1 kg',
-    'image' => 'images/tomato.jpg',
-    'category' => 'Vegetables',
-    'brand' => 'Fresh Harvest',
-    'unit' => 'kg',
-    'weight_value' => 1
-  ),
-  array(
-    'id' => 10,
-    'name' => 'Potato Chips',
-    'price' => 45,
-    'quantity' => '200g',
-    'image' => 'images/chips.jpg',
-    'category' => 'Snacks',
-    'brand' => 'Crispy Bites',
-    'unit' => 'pcs',
-    'weight_value' => 1
-  )
-);
+require_once __DIR__ . '/data/products.data.php';
+
+
 
 // Handle search functionality
 $search_keyword = isset($_GET['search']) ? trim($_GET['search']) : '';
@@ -357,5 +248,6 @@ $filtered_products = array_filter($products, function($product) use ($search_key
       </div>
     </div>
   </footer>
+  <script src="assets/js/phase3.js"></script>
 </body>
 </html>

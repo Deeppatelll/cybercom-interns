@@ -1,59 +1,7 @@
 <?php
-session_start();
+require_once __DIR__ . '/data/products.data.php';
 
-// Static product data
-$products = array(
-  array(
-    'id' => 1,
-    'name' => 'Fresh Apples',
-    'price' => 120,
-    'quantity' => '1 kg',
-    'image' => 'images/apple.jpg',
-    'category' => 'Fruits'
-  ),
-  array(
-    'id' => 2,
-    'name' => 'Yellow Bananas',
-    'price' => 60,
-    'quantity' => '6 pcs',
-    'image' => 'images/banana.jpg',
-    'category' => 'Fruits'
-  ),
-  array(
-    'id' => 3,
-    'name' => 'Fresh Milk',
-    'price' => 65,
-    'quantity' => '1 Liter',
-    'image' => 'images/milk.jpg',
-    'category' => 'Dairy'
-  ),
-  array(
-    'id' => 4,
-    'name' => 'Whole Wheat Bread',
-    'price' => 35,
-    'quantity' => '400g',
-    'image' => 'images/bread.jpg',
-    'category' => 'Bakery'
-  ),
-  array(
-    'id' => 5,
-    'name' => 'Basmati Rice',
-    'price' => 450,
-    'quantity' => '5 kg',
-    'image' => 'images/rice.jpg',
-    'category' => 'Staples'
-  ),
-  array(
-    'id' => 6,
-    'name' => 'Brown Eggs',
-    'price' => 72,
-    'quantity' => '12 pcs',
-    'image' => 'images/eggs.jpg',
-    'category' => 'Dairy'
-  )
-);
-
-// Get first 4 products for featured section
+// Get first 5 products for featured section
 $featured_products = array_slice($products, 0, 5);
 ?>
 <!DOCTYPE html>
@@ -190,6 +138,9 @@ $featured_products = array_slice($products, 0, 5);
       </div>
     </section>
   </main>
+
+  <script src="assets/js/phase3.js"></script>
+
 
   <footer>
     <div class="container">

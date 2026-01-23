@@ -429,3 +429,11 @@ Browser → http://localhost:8000
 **Version:** 2.0
 
 ---
+
+## 📞 Support & Maintenance
+
+For issues, feature requests, or technical support, review the code or contact the development team.
+
+---
+
+**EasyCart © 2026 - Professional Grocery E-Commerce Solution**

@@ -104,5 +104,6 @@ session_start();
       </div>
     </div>
   </footer>
+  <script src="assets/js/phase3.js"></script>
 </body>
 </html>
