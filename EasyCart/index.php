@@ -1,8 +1,15 @@
 <?php
+session_start();
 require_once __DIR__ . '/data/products.data.php';
 
 // Get first 5 products for featured section
 $featured_products = array_slice($products, 0, 5);
+$cart_count = 0;
+if (!empty($_SESSION['cart'])) {
+  foreach ($_SESSION['cart'] as $item) {
+    $cart_count += (int)$item['quantity'];
+  }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -20,7 +27,7 @@ $featured_products = array_slice($products, 0, 5);
         <ul class="nav-links">
           <li><a href="index.php" class="active">Home</a></li>
           <li><a href="products.php">Products</a></li>
-          <li><a href="cart.php">Cart</a></li>
+          <li><a href="cart.php">Cart<?php if ($cart_count > 0): ?><span class="cart-badge"><?php echo $cart_count; ?></span><?php endif; ?></a></li>
           <li><a href="login.php">Login</a></li>
         </ul>
       </nav>
@@ -35,8 +42,7 @@ $featured_products = array_slice($products, 0, 5);
     <!-- Hero Slider Section -->
     <div style="position: relative;">
       <input type="radio" name="slider" id="slide1" class="slider-radio" checked>
-      <input type="radio" name="slider" id="slide2" class="slider-radio">
-      <input type="radio" name="slider" id="slide3" class="slider-radio">
+      
 
       <section class="hero">
         <div class="hero-slider">
@@ -55,8 +61,7 @@ $featured_products = array_slice($products, 0, 5);
 
         <div class="slider-controls">
           <label for="slide1" class="slider-dot active"></label>
-          <label for="slide2" class="slider-dot"></label>
-          <label for="slide3" class="slider-dot"></label>
+        
         </div>
       </section>
     </div>
@@ -79,6 +84,7 @@ $featured_products = array_slice($products, 0, 5);
             <div class="product-quantity"><?php echo $product['quantity']; ?></div>
             <div class="product-price">₹<?php echo $product['price']; ?></div>
             <a href="product-detail.php?id=<?php echo $product['id']; ?>">View Details →</a>
+            <button class="btn btn-primary btn-small js-add-to-cart" data-product-id="<?php echo $product['id']; ?>" style="margin-top: 6px; width: 100%;">Add to Cart</button>
           </div>
         </div>
         <?php endforeach; ?>

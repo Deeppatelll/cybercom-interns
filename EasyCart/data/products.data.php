@@ -120,6 +120,7 @@ $products = array(
     'weight_value' => 1,
     'description' => 'Crispy potato chips, a perfect snack for any time.'
   )
+  
 );
 
 

@@ -4,6 +4,13 @@ session_start();
 // Static product data - all products
 require_once __DIR__ . '/data/products.data.php';
 
+$cart_count = 0;
+if (!empty($_SESSION['cart'])) {
+  foreach ($_SESSION['cart'] as $item) {
+    $cart_count += (int)$item['quantity'];
+  }
+}
+
 
 
 // Handle search functionality
@@ -59,6 +66,25 @@ $filtered_products = array_filter($products, function($product) use ($search_key
   
   return true;
 });
+// ==========================
+// PAGINATION LOGIC
+// ==========================
+
+$per_page = 5;
+
+// Current page from URL
+$page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
+
+// Total filtered products
+$total_products = count($filtered_products);
+
+// Total pages
+$total_pages = ceil($total_products / $per_page);
+
+// Slice products for current page
+$offset = ($page - 1) * $per_page;
+$paginated_products = array_slice($filtered_products, $offset, $per_page);
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -76,7 +102,7 @@ $filtered_products = array_filter($products, function($product) use ($search_key
         <ul class="nav-links">
           <li><a href="index.php">Home</a></li>
           <li><a href="products.php" class="active">Products</a></li>
-          <li><a href="cart.php">Cart</a></li>
+          <li><a href="cart.php">Cart<?php if ($cart_count > 0): ?><span class="cart-badge"><?php echo $cart_count; ?></span><?php endif; ?></a></li>
           <li><a href="login.php">Login</a></li>
         </ul>
       </nav>
@@ -184,7 +210,8 @@ $filtered_products = array_filter($products, function($product) use ($search_key
         <?php 
         // Render filtered products dynamically
         if(count($filtered_products) > 0):
-          foreach($filtered_products as $product): 
+          foreach($paginated_products as $product):
+ 
         ?>
         <div class="product-card">
           <div class="product-image">
@@ -195,6 +222,7 @@ $filtered_products = array_filter($products, function($product) use ($search_key
             <div class="product-quantity"><?php echo $product['quantity']; ?></div>
             <div class="product-price">₹<?php echo $product['price']; ?></div>
             <a href="product-detail.php?id=<?php echo $product['id']; ?>">View Details →</a>
+            <button class="btn btn-primary btn-small js-add-to-cart" data-product-id="<?php echo $product['id']; ?>" style="margin-top: 6px; width: 100%;">Add to Cart</button>
           </div>
         </div>
         <?php 
@@ -209,6 +237,56 @@ $filtered_products = array_filter($products, function($product) use ($search_key
       </div>
         </div>
     </div>
+   <?php if ($total_pages > 1): ?>
+<div class="pagination">
+
+<?php
+$query = $_GET;
+
+// how many numbers around current page
+$range = 2;
+
+$start = max(1, $page - $range);
+$end   = min($total_pages, $page + $range);
+
+// ---- Always show first page ----
+if ($start > 1) {
+    $query['page'] = 1;
+    echo '<a class="page-link" href="products.php?' .
+          http_build_query($query) . '">1</a>';
+
+    if ($start > 2) {
+        echo '<span class="page-dots">...</span>';
+    }
+}
+
+// ---- Middle pages ----
+for ($i = $start; $i <= $end; $i++) {
+
+    $query['page'] = $i;
+    $active = $i == $page ? 'active' : '';
+
+    echo '<a class="page-link ' . $active . '" href="products.php?' .
+          http_build_query($query) . '">' . $i . '</a>';
+}
+
+// ---- Always show last page ----
+if ($end < $total_pages) {
+
+    if ($end < $total_pages - 1) {
+        echo '<span class="page-dots">...</span>';
+    }
+
+    $query['page'] = $total_pages;
+    echo '<a class="page-link" href="products.php?' .
+          http_build_query($query) . '">' . $total_pages . '</a>';
+}
+?>
+
+</div>
+<?php endif; ?>
+
+
   </main>
 
   <footer>
@@ -251,3 +329,4 @@ $filtered_products = array_filter($products, function($product) use ($search_key
   <script src="assets/js/phase3.js"></script>
 </body>
 </html>
+

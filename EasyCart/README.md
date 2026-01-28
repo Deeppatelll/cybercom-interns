@@ -15,7 +15,7 @@ A professional, full-featured grocery delivery web application built with **PHP,
 - **Database:** Static Product Data (Easily convertible to database)
 - **CSS Architecture:** Centralized styling (styles.css)
 - **Responsive Design:** Mobile-first approach
-- **No JavaScript:** Pure backend-driven functionality
+- **JavaScript (AJAX):** Dynamic cart updates without reload
 
 ---
 
@@ -90,11 +90,13 @@ images/
 
 ### Shopping Cart System
 ✅ **Session-based cart management** - Persistent across page navigation  
-✅ **Quantity adjustment** - (+) and (-) buttons for real-time qty changes  
+✅ **Quantity adjustment** - (+) and (-) buttons with session updates  
+✅ **Remove items** - Delete items directly from cart  
 ✅ **Automatic price calculation** - Item totals update instantly  
-✅ **GST tax calculation** - 5% Indian GST tax compliance  
-✅ **Delivery charges** - Fixed ₹49 charge with display option  
-✅ **Complete billing breakdown** - Subtotal, taxes, charges, and total
+✅ **GST tax calculation** - 18% GST applied on (Subtotal + Shipping)  
+✅ **Shipping options** - Standard, Express, White Glove, Freight  
+✅ **Shipping rules** - Rule-based charges per method  
+✅ **Complete billing breakdown** - Subtotal, shipping, GST, and total
 
 ### Product Management
 ✅ **Dynamic product display** - 10 products with images and pricing  
@@ -107,7 +109,7 @@ images/
 ✅ **Professional UI/UX** - Clean, modern interface  
 ✅ **Consistent navigation** - Header navigation across all pages  
 ✅ **Visual feedback** - Hover effects, active states, smooth transitions  
-✅ **No JavaScript** - Pure backend PHP processing
+✅ **AJAX cart updates** - Dynamic cart operations without reload
 
 ---
 
@@ -140,9 +142,9 @@ images/
   - Delete button per item
 - **Order Summary Panel:**
   - Subtotal calculation
-  - Delivery charges (₹49)
+  - Shipping options with rule-based charges
   - Subtotal before tax
-  - GST (5%) calculation
+  - GST (18%) calculation
   - Final payable amount
 - **Checkout button** - Proceeds to checkout
 - **Continue shopping** - Returns to products
@@ -150,9 +152,10 @@ images/
 ### Checkout Page (checkout.php)
 - **Order summary recap** - Cart items overview
 - **Delivery options:**
-  - Express delivery (30-60 minutes)
-  - Standard delivery (1-2 hours)
-  - Scheduled delivery (next day)
+  - Standard Shipping
+  - Express Shipping
+  - White Glove Delivery
+  - Freight Shipping
 - **Address entry** - Customer delivery address
 - **Payment summary** - Final billing breakdown
 - **Place order button** - Order confirmation
@@ -260,14 +263,14 @@ Home → Products → Cart → Login
   - Remove items from cart
   - Calculate totals and taxes
 - **Form Handling:** POST method for all cart operations
-- **Tax Calculation:** Automatic 5% GST tax application
+- **Tax Calculation:** 18% GST applied on (Subtotal + Shipping)
 
 ### Frontend Architecture
 - **Semantic HTML5** - Proper document structure
 - **CSS-Only Styling** - No preprocessors required
 - **Responsive Images** - Product photos in images folder
 - **Form Elements** - HTML form controls with POST submission
-- **No JavaScript** - Pure backend processing
+- **Vanilla JS + AJAX** - Cart updates without page reloads
 
 ---
 

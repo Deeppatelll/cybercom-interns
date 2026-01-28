@@ -1,39 +1,37 @@
 <?php
+
 session_start();
 require_once __DIR__ . '/data/products.data.php';
 
-// Get cart data and calculate totals
-$cart_items = isset($_SESSION['cart']) ? $_SESSION['cart'] : array();
-$subtotal = isset($_SESSION['subtotal']) ? $_SESSION['subtotal'] : 0;
-
-// Handle delivery option selection via POST form
-if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['select_delivery'])) {
-  $selected_delivery = isset($_POST['delivery']) ? $_POST['delivery'] : 'express';
-  
-  // Set delivery charge based on selection
-  if($selected_delivery == 'standard') {
-    $delivery_charge = 29;
-  } elseif($selected_delivery == 'scheduled') {
-    $delivery_charge = 0;
-  } else {
-    $delivery_charge = 49; // express (default)
+$cart_count = 0;
+if (!empty($_SESSION['cart'])) {
+  foreach ($_SESSION['cart'] as $item) {
+    $cart_count += (int)$item['quantity'];
   }
-  
-  // Store in session
-  $_SESSION['delivery_charge'] = $delivery_charge;
-  $_SESSION['delivery_option'] = $selected_delivery;
-} else {
-  // Get stored delivery charge from session or use default
-  $delivery_charge = isset($_SESSION['delivery_charge']) ? $_SESSION['delivery_charge'] : 49;
 }
 
-// Get selected delivery option for radio button state
-$selected_delivery = isset($_SESSION['delivery_option']) ? $_SESSION['delivery_option'] : 'express';
+// Get cart data and calculate totals
+$cart_items = isset($_SESSION['cart']) ? $_SESSION['cart'] : array();
+$subtotal = $_SESSION['subtotal'] ?? 0;
 
-// Calculate order totals
-$subtotal_before_tax = $subtotal + $delivery_charge;
-$gst = $subtotal_before_tax * 0.05;
+$shipping_method = $_SESSION['shipping'] ?? 'standard';
+$shipping_cost   = $_SESSION['shipping_cost'] ?? 40;
+
+$shipping_labels = [
+  'standard' => 'Standard Shipping',
+  'express' => 'Express Shipping',
+  'white_glove' => 'White Glove Delivery',
+  'freight' => 'Freight Shipping'
+];
+
+$shipping_label = $shipping_labels[$shipping_method] ?? ucfirst($shipping_method);
+
+$subtotal_before_tax = $subtotal + $shipping_cost;
+
+$gst = $subtotal_before_tax * 0.18;
+
 $total = $subtotal_before_tax + $gst;
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -51,7 +49,7 @@ $total = $subtotal_before_tax + $gst;
         <ul class="nav-links">
           <li><a href="index.php">Home</a></li>
           <li><a href="products.php">Products</a></li>
-          <li><a href="cart.php" class="active">Cart</a></li>
+          <li><a href="cart.php" class="active">Cart<?php if ($cart_count > 0): ?><span class="cart-badge"><?php echo $cart_count; ?></span><?php endif; ?></a></li>
           <li><a href="login.php">Login</a></li>
         </ul>
       </nav>
@@ -104,32 +102,54 @@ $total = $subtotal_before_tax + $gst;
             </div>
           </form>
 
-          <h2 style="font-size: 1.3rem; margin-top: 2.5rem; margin-bottom: 1.5rem;">Delivery Option</h2>
-          
-          <form method="POST">
-            <div class="form-group">
-              <label style="display: flex; align-items: center; margin-bottom: 1rem;">
-                <input type="radio" name="delivery" value="express" <?php echo ($selected_delivery === 'express') ? 'checked' : ''; ?>>
-                <span style="margin-left: 0.5rem;">Express Delivery (30 min) - ₹49</span>
-              </label>
+          <div class="payment-options">
+            <h2 style="font-size: 1.3rem; margin-bottom: 1rem;">Payment Method</h2>
+
+            <label class="payment-option">
+              <input type="radio" name="payment_method" value="card">
+              Credit / Debit Card
+            </label>
+            <label class="payment-option">
+              <input type="radio" name="payment_method" value="upi">
+              UPI (Google Pay, PhonePe, Paytm)
+            </label>
+            <label class="payment-option">
+              <input type="radio" name="payment_method" value="cod">
+              Cash on Delivery
+            </label>
+
+            <div class="payment-details hidden" data-payment="card">
+              <div class="form-group">
+                <label for="card_name">Name on Card</label>
+                <input type="text" id="card_name" placeholder="Full name">
+              </div>
+              <div class="form-group">
+                <label for="card_number">Card Number</label>
+                <input type="text" id="card_number" placeholder="1234 5678 9012 3456">
+              </div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div class="form-group">
+                  <label for="card_expiry">Expiry</label>
+                  <input type="text" id="card_expiry" placeholder="MM/YY">
+                </div>
+                <div class="form-group">
+                  <label for="card_cvv">CVV</label>
+                  <input type="text" id="card_cvv" placeholder="123">
+                </div>
+              </div>
             </div>
 
-            <div class="form-group">
-              <label style="display: flex; align-items: center; margin-bottom: 1rem;">
-                <input type="radio" name="delivery" value="standard" <?php echo ($selected_delivery === 'standard') ? 'checked' : ''; ?>>
-                <span style="margin-left: 0.5rem;">Standard Delivery (1-2 hours) - ₹29</span>
-              </label>
+            <div class="payment-details hidden" data-payment="upi">
+              <div class="form-group">
+                <label for="upi_id">UPI ID</label>
+                <input type="text" id="upi_id" placeholder="name@bank">
+              </div>
             </div>
 
-            <div class="form-group">
-              <label style="display: flex; align-items: center; margin-bottom: 1rem;">
-                <input type="radio" name="delivery" value="scheduled" <?php echo ($selected_delivery === 'scheduled') ? 'checked' : ''; ?>>
-                <span style="margin-left: 0.5rem;">Scheduled Delivery (Next day) - Free</span>
-              </label>
+            <div class="payment-details hidden" data-payment="cod">
+              <p style="color: var(--text-light); margin: 0;">Pay with cash when your order is delivered.</p>
             </div>
-
-            <button type="submit" name="select_delivery" class="btn btn-primary" style="margin-top: 1rem;">Update Delivery Option</button>
-          </form>
+          </div>
         </div>
 
         <div>
@@ -167,9 +187,10 @@ $total = $subtotal_before_tax + $gst;
             </div>
 
             <div class="summary-row">
-              <span>Delivery Charges</span>
-              <span>₹<?php echo $delivery_charge; ?></span>
-            </div>
+  <span>Shipping (<?php echo $shipping_label; ?>)</span>
+  <span>₹<?php echo $shipping_cost; ?></span>
+</div>
+
 
             <div class="summary-row">
               <span>Subtotal (before tax)</span>
@@ -177,7 +198,7 @@ $total = $subtotal_before_tax + $gst;
             </div>
 
             <div class="summary-row gst">
-              <span>GST (5%)</span>
+              <span>GST(18%)</span>
               <span>₹<?php echo number_format($gst, 2); ?></span>
             </div>
 
@@ -191,9 +212,14 @@ $total = $subtotal_before_tax + $gst;
               ✓ Prices inclusive of applicable taxes
             </div>
 
-            <a href="orders.php" class="btn btn-primary" style="width: 100%; text-align: center; display: block; padding: 12px 32px; margin-top: 2rem;">
-              Place Order
-            </a>
+            <form method="POST" action="orders.php">
+  <button type="submit"
+          class="btn btn-primary"
+          style="width:100%;margin-top:2rem;">
+    Place Order
+  </button>
+</form>
+
 
             <a href="cart.php" class="btn btn-secondary" style="width: 100%; text-align: center; display: block; padding: 12px 32px; margin-top: 1rem;">
               Back to Cart

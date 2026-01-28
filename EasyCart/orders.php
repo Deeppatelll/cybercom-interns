@@ -1,65 +1,61 @@
 <?php
 session_start();
+require_once __DIR__ . '/data/products.data.php';
 
-// Static orders data
-$orders = array(
-  array(
-    'id' => '#EZ-2024-001',
-    'date' => 'Jan 15, 2024',
-    'items' => 'Apples (2), Milk (1), Bread (2)',
-    'amount' => 896,
-    'status' => 'Delivered'
-  ),
-  array(
-    'id' => '#EZ-2024-002',
-    'date' => 'Jan 12, 2024',
-    'items' => 'Rice (1), Oil (1), Eggs (1)',
-    'amount' => 645,
-    'status' => 'Delivered'
-  ),
-  array(
-    'id' => '#EZ-2024-003',
-    'date' => 'Jan 10, 2024',
-    'items' => 'Onions (1), Tomatoes (1), Chips (1)',
-    'amount' => 520,
-    'status' => 'Delivered'
-  ),
-  array(
-    'id' => '#EZ-2024-004',
-    'date' => 'Jan 8, 2024',
-    'items' => 'Bananas (2), Bread (1), Milk (1)',
-    'amount' => 456,
-    'status' => 'Delivered'
-  ),
-  array(
-    'id' => '#EZ-2024-005',
-    'date' => 'Jan 5, 2024',
-    'items' => 'Apples (1), Rice (2), Eggs (1)',
-    'amount' => 782,
-    'status' => 'Delivered'
-  ),
-  array(
-    'id' => '#EZ-2024-006',
-    'date' => 'Jan 1, 2024',
-    'items' => 'Milk (2), Bread (2), Oil (1)',
-    'amount' => 610,
-    'status' => 'Delivered'
-  ),
-  array(
-    'id' => '#EZ-2023-101',
-    'date' => 'Dec 28, 2023',
-    'items' => 'Bananas (1), Tomatoes (2), Onions (2)',
-    'amount' => 523,
-    'status' => 'Delivered'
-  ),
-  array(
-    'id' => '#EZ-2023-102',
-    'date' => 'Dec 25, 2023',
-    'items' => 'Apples (3), Milk (1), Chips (2)',
-    'amount' => 889,
-    'status' => 'Delivered'
-  )
-);
+$cart_count = 0;
+if (!empty($_SESSION['cart'])) {
+  foreach ($_SESSION['cart'] as $item) {
+    $cart_count += (int)$item['quantity'];
+  }
+}
+
+/* ==========================
+   PHASE 4 – FINAL ORDER SAVE
+========================== */
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+    $cart_items = $_SESSION['cart'] ?? [];
+    $subtotal = $_SESSION['subtotal'] ?? 0;
+    $shipping_method = $_SESSION['shipping'] ?? 'standard';
+    $shipping_cost = $_SESSION['shipping_cost'] ?? 40;
+
+    $subtotal_before_tax = $subtotal + $shipping_cost;
+    $gst = $subtotal_before_tax * 0.18;
+    $total = $subtotal_before_tax + $gst;
+
+    $item_strings = [];
+
+    foreach ($cart_items as $item) {
+        $product = getProductById($item['id'], $products);
+        if ($product) {
+            $item_strings[] = $product['name'] . ' (' . $item['quantity'] . ')';
+        }
+    }
+
+    $items_text = implode(', ', $item_strings);
+
+    $order_id = '#EZ-' . date('Ymd-His');
+
+    $new_order = [
+        'id' => $order_id,
+        'date' => date('M d, Y'),
+        'items' => $items_text,
+        'amount' => round($total),
+        'status' => 'Processing'
+    ];
+
+    if (!isset($_SESSION['orders'])) {
+        $_SESSION['orders'] = [];
+    }
+
+    array_unshift($_SESSION['orders'], $new_order);
+
+    unset($_SESSION['cart']);
+    unset($_SESSION['subtotal']);
+}
+
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -77,7 +73,7 @@ $orders = array(
         <ul class="nav-links">
           <li><a href="index.php">Home</a></li>
           <li><a href="products.php">Products</a></li>
-          <li><a href="cart.php">Cart</a></li>
+          <li><a href="cart.php">Cart<?php if ($cart_count > 0): ?><span class="cart-badge"><?php echo $cart_count; ?></span><?php endif; ?></a></li>
           <li><a href="login.php" >Login</a></li>
         </ul>
       </nav>
@@ -91,6 +87,9 @@ $orders = array(
   <main>
     <div class="page-container">
       <h1 class="page-title">My Orders</h1>
+        <?php
+$orders = $_SESSION['orders'] ?? [];
+?>
 
       <table class="orders-table">
         <thead>
@@ -169,3 +168,4 @@ $orders = array(
   <script src="assets/js/phase3.js"></script>
 </body>
 </html>
+

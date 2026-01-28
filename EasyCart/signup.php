@@ -1,5 +1,12 @@
+
 <?php
 session_start();
+$cart_count = 0;
+if (!empty($_SESSION['cart'])) {
+  foreach ($_SESSION['cart'] as $item) {
+    $cart_count += (int)$item['quantity'];
+  }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -17,7 +24,7 @@ session_start();
         <ul class="nav-links">
           <li><a href="index.php">Home</a></li>
           <li><a href="products.php">Products</a></li>
-          <li><a href="cart.php">Cart</a></li>
+          <li><a href="cart.php">Cart<?php if ($cart_count > 0): ?><span class="cart-badge"><?php echo $cart_count; ?></span><?php endif; ?></a></li>
           <li><a href="login.php" class="active">Login</a></li>
         </ul>
       </nav>

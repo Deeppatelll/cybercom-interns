@@ -38,6 +38,34 @@ document.addEventListener('DOMContentLoaded', function() {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   };
 
+  const postCartAction = (payload) => {
+    const formData = new FormData();
+    Object.keys(payload).forEach(key => formData.append(key, payload[key]));
+    formData.append('ajax', '1');
+
+    return fetch('cart.php', {
+      method: 'POST',
+      body: formData
+    }).then(res => res.json());
+  };
+
+  const updateCartBadge = (count) => {
+    const cartLinks = document.querySelectorAll('a[href="cart.php"]');
+    cartLinks.forEach(link => {
+      let badge = link.querySelector('.cart-badge');
+      if (count > 0) {
+        if (!badge) {
+          badge = document.createElement('span');
+          badge.className = 'cart-badge';
+          link.appendChild(badge);
+        }
+        badge.textContent = count;
+      } else if (badge) {
+        badge.remove();
+      }
+    });
+  };
+
   // ==========================================
   // 2. FORM VALIDATIONS
   // ==========================================
@@ -81,7 +109,7 @@ document.addEventListener('DOMContentLoaded', function() {
         } else {
            e.preventDefault();
              window.location.href = 'index.php';
-        }
+}
 
       });
     }
@@ -193,9 +221,68 @@ document.addEventListener('DOMContentLoaded', function() {
     const cartTable = document.querySelector('.cart-table');
     
     if (cartTable) {
-        // A. Inject + / - Buttons
-        const qtyInputs = cartTable.querySelectorAll('input[type="number"]');
-        qtyInputs.forEach(input => {
+      // A. Cart helpers
+      let qtyUpdateTimer = null;
+
+      const updateSummaryFromServer = (summary) => {
+        if (!summary) return;
+        const summaryMap = {
+          subtotal: summary.subtotal,
+          shipping: summary.shipping_cost,
+          subtotal_before_tax: summary.subtotal_before_tax,
+          gst: summary.gst,
+          total: summary.total
+        };
+
+        Object.keys(summaryMap).forEach(key => {
+          const el = document.querySelector(`[data-summary="${key}"]`);
+          if (el) {
+            const value = summaryMap[key];
+            el.textContent = '₹' + (key === 'subtotal' || key === 'subtotal_before_tax' ? value : value.toFixed(2));
+          }
+        });
+      };
+
+      const updateQuantityAjax = (productId, quantity) => {
+        clearTimeout(qtyUpdateTimer);
+        qtyUpdateTimer = setTimeout(() => {
+          postCartAction({
+            action: 'update_qty',
+            product_id: productId,
+            quantity: quantity
+          }).then(data => {
+            updateSummaryFromServer(data.summary);
+            if (typeof data.cart_count !== 'undefined') {
+              updateCartBadge(data.cart_count);
+            }
+          }).catch(() => {
+            // Silent fail; user can refresh if needed
+          });
+        }, 300);
+      };
+
+      const getSelectedShippingMethod = () => {
+        const selected = document.querySelector('input[name="shipping"]:checked');
+        return selected ? selected.value : 'standard';
+      };
+
+      const calculateShippingCost = (subtotal, method) => {
+        switch (method) {
+          case 'express':
+            return Math.min(80, subtotal * 0.10);
+          case 'white_glove':
+            return Math.min(150, subtotal * 0.05);
+          case 'freight':
+            return Math.max(200, subtotal * 0.03);
+          case 'standard':
+          default:
+            return 40;
+        }
+      };
+
+      // B. Inject + / - Buttons
+      const qtyInputs = cartTable.querySelectorAll('input[type="number"]');
+      qtyInputs.forEach(input => {
             const wrapper = document.createElement('div');
             wrapper.style.display = 'flex';
             wrapper.style.alignItems = 'center';
@@ -220,22 +307,30 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Events
             btnMinus.addEventListener('click', () => {
-                let val = parseInt(input.value) || 0;
-                if (val > 1) {
-                    input.value = val - 1;
-                    updateCartTotals();
-                }
+              let val = parseInt(input.value) || 0;
+              if (val > 1) {
+                input.value = val - 1;
+                updateCartTotals();
+                const productId = input.getAttribute('data-product-id');
+                updateQuantityAjax(productId, input.value);
+              }
             });
             
             btnPlus.addEventListener('click', () => {
-                let val = parseInt(input.value) || 0;
-                if (val < 999) {
-                    input.value = val + 1;
-                    updateCartTotals();
-                }
+              let val = parseInt(input.value) || 0;
+              if (val < 999) {
+                input.value = val + 1;
+                updateCartTotals();
+                const productId = input.getAttribute('data-product-id');
+                updateQuantityAjax(productId, input.value);
+              }
             });
             
-            input.addEventListener('input', updateCartTotals);
+            input.addEventListener('input', () => {
+              updateCartTotals();
+              const productId = input.getAttribute('data-product-id');
+              updateQuantityAjax(productId, input.value);
+            });
         });
 
         // B. Instant Remove (AJAX)
@@ -243,6 +338,10 @@ document.addEventListener('DOMContentLoaded', function() {
         deleteBtns.forEach(btn => {
             btn.addEventListener('click', function(e) {
                 e.preventDefault();
+
+            if (!confirm('Are you sure you want to remove this item from your cart?')) {
+              return;
+            }
                 
                 // Visual feedback
                 const row = btn.closest('tr');
@@ -253,21 +352,23 @@ document.addEventListener('DOMContentLoaded', function() {
                 const formData = new FormData(form);
                 formData.append('delete_product', '1'); // Ensure the trigger name is sent
                 
-                fetch('cart.php', {
-                    method: 'POST',
-                    body: formData
+                postCartAction({
+                  action: 'delete_item',
+                  product_id: btn.getAttribute('data-product-id')
                 })
-                .then(response => {
-                    if (response.ok) {
-                        // Remove row visually
-                        row.remove();
-                        // Check if cart is empty
-                        if (cartTable.querySelectorAll('tbody tr').length === 0) {
-                            location.reload(); // Simplest way to show "empty cart" message
-                        } else {
-                            updateCartTotals();
-                        }
-                    }
+                .then(data => {
+                  // Remove row visually
+                  row.remove();
+                  // Check if cart is empty
+                  if (cartTable.querySelectorAll('tbody tr').length === 0) {
+                    location.reload();
+                  } else {
+                    updateCartTotals();
+                    updateSummaryFromServer(data.summary);
+                  }
+                  if (typeof data.cart_count !== 'undefined') {
+                    updateCartBadge(data.cart_count);
+                  }
                 })
                 .catch(err => {
                     console.error('Error removing item:', err);
@@ -305,23 +406,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 // 1. Subtotal
                 updateSummaryRow(summaryRows[0], subtotal);
                 
-                // 2. Delivery (Parse existing, logic might vary but let's assume it stays same if not dynamic)
-                let delivery = 49; 
-                const deliveryText = summaryRows[1].lastElementChild.textContent;
-                const deliveryMatch = deliveryText.match(/(\d+\.?\d*)/);
-                if (deliveryMatch) delivery = parseFloat(deliveryMatch[0]);
+              // 2. Shipping (based on selected method)
+              const shippingMethod = getSelectedShippingMethod();
+              const shippingCost = calculateShippingCost(subtotal, shippingMethod);
+              summaryRows[1].lastElementChild.textContent = '₹' + shippingCost.toFixed(2);
 
-                if (subtotal >= 500) {
-                    delivery = 0; // "Free delivery on orders above 500" logic from footer
-                }
-                summaryRows[1].lastElementChild.textContent = '₹' + delivery;
-
-                // 3. Subtotal before tax
-                const subBeforeTax = subtotal + delivery;
+              // 3. Subtotal before tax
+              const subBeforeTax = subtotal + shippingCost;
                 updateSummaryRow(summaryRows[2], subBeforeTax);
                 
-                // 4. GST 5%
-                const gst = subBeforeTax * 0.05;
+              // 4. GST 18%
+              const gst = subBeforeTax * 0.18;
                 updateSummaryRow(summaryRows[3], gst, true);
                 
                 // 5. Total
@@ -334,6 +429,22 @@ document.addEventListener('DOMContentLoaded', function() {
             const span = rowElement.lastElementChild;
             span.textContent = '₹' + (isFormatted ? amount.toFixed(2) : amount);
         }
+
+        // D. Shipping selection updates totals
+        const shippingRadios = document.querySelectorAll('input[name="shipping"]');
+        shippingRadios.forEach(radio => {
+          radio.addEventListener('change', () => {
+            updateCartTotals();
+            postCartAction({
+              action: 'apply_shipping',
+              shipping: radio.value
+            }).then(data => {
+              updateSummaryFromServer(data.summary);
+            }).catch(() => {
+              // Silent fail
+            });
+          });
+        });
     }
   }
 
@@ -375,65 +486,90 @@ document.addEventListener('DOMContentLoaded', function() {
         // Listeners
         radios.forEach(r => r.addEventListener('change', updateHighlight));
     }
+
+    const paymentRadios = document.querySelectorAll('input[name="payment_method"]');
+    const paymentPanels = document.querySelectorAll('.payment-details');
+
+    const updatePaymentPanels = () => {
+      const selected = document.querySelector('input[name="payment_method"]:checked')?.value;
+      paymentPanels.forEach(panel => {
+        const type = panel.getAttribute('data-payment');
+        if (selected && type === selected) {
+          panel.classList.remove('hidden');
+        } else {
+          panel.classList.add('hidden');
+        }
+      });
+    };
+
+    if (paymentRadios.length) {
+      paymentRadios.forEach(radio => radio.addEventListener('change', updatePaymentPanels));
+      updatePaymentPanels();
+    }
+
+    const placeOrderForm = document.querySelector('form[action="orders.php"]');
+    if (placeOrderForm) {
+      placeOrderForm.addEventListener('submit', (e) => {
+        const selected = document.querySelector('input[name="payment_method"]:checked');
+        if (!selected) {
+          e.preventDefault();
+          alert('Please choose a payment method to place the order.');
+        }
+      });
+    }
   }
 
 
   // ==========================================
   // 5. PRODUCT DETAIL GALLERY
   // ==========================================
-  if (document.location.pathname.includes('product-detail.php')) {
-    const mainImgDiv = document.querySelector('.product-detail-image');
-    const mainImg = mainImgDiv ? mainImgDiv.querySelector('img') : null;
-    
-    if (mainImg) {
-        // Create thumbnail container
-        const thumbContainer = document.createElement('div');
-        thumbContainer.className = 'thumbnails';
-        thumbContainer.style.display = 'flex';
-        thumbContainer.style.gap = '10px';
-        thumbContainer.style.marginTop = '15px';
-        thumbContainer.style.justifyContent = 'center';
-        
-        // Add container after image
-        mainImgDiv.appendChild(thumbContainer);
-        
-        // Create dummy thumbnails (clones of current image for demo)
-        // Since we don't have extra images in DB
-        const sources = [
-            mainImg.src, // Original
-            mainImg.src, // Valid placeholder 2
-            mainImg.src  // Valid placeholder 3
-        ];
-        
-        sources.forEach((src, index) => {
-            const thumb = document.createElement('img');
-            thumb.src = src;
-            thumb.style.width = '60px';
-            thumb.style.height = '60px';
-            thumb.style.objectFit = 'cover';
-            thumb.style.border = index === 0 ? '2px solid #2563eb' : '1px solid #ddd';
-            thumb.style.borderRadius = '4px';
-            thumb.style.cursor = 'pointer';
-            thumb.style.transition = 'all 0.2s';
-            
-            // Visual diff for demo purposes (optional filters)
-            if (index === 1) thumb.style.filter = 'contrast(1.2)';
-            if (index === 2) thumb.style.filter = 'brightness(1.1)';
+ // ==========================================
+// 5. PRODUCT DETAIL GALLERY (FINAL FIXED)
+// ==========================================
 
-            thumb.addEventListener('click', () => {
-                // Update Main
-                mainImg.src = src;
-                mainImg.style.filter = thumb.style.filter; // Carry over effect for demo
-                
-                // Update active state
-                Array.from(thumbContainer.children).forEach(t => t.style.border = '1px solid #ddd');
-                thumb.style.border = '2px solid #2563eb';
-            });
-            
-            thumbContainer.appendChild(thumb);
-        });
-    }
-  }
+if (document.location.pathname.includes('product-detail.php')) {
+
+  const mainImg = document.querySelector('.product-main-image img');
+  const thumbContainer = document.querySelector('.product-thumbnails');
+
+  if (!mainImg || !thumbContainer) return;
+
+  // Clear old thumbnails if JS reloads
+  thumbContainer.innerHTML = '';
+
+  const sources = [
+    mainImg.src,
+    mainImg.src,
+    mainImg.src
+  ];
+
+  sources.forEach((src, index) => {
+
+    const thumbBox = document.createElement('div');
+    thumbBox.className = 'product-thumbnail';
+
+    const thumb = document.createElement('img');
+    thumb.src = src;
+
+    if (index === 0) thumbBox.classList.add('active');
+
+    thumbBox.appendChild(thumb);
+    thumbContainer.appendChild(thumbBox);
+
+    thumbBox.addEventListener('click', () => {
+
+      mainImg.src = src;
+
+      document
+        .querySelectorAll('.product-thumbnail')
+        .forEach(t => t.classList.remove('active'));
+
+      thumbBox.classList.add('active');
+
+    });
+
+  });
+}
 
 
   // ==========================================
@@ -455,6 +591,72 @@ document.addEventListener('DOMContentLoaded', function() {
          span.style.marginLeft = '10px';
          title.appendChild(span);
      }
+  }
+
+  // ==========================================
+  // 7. ADD TO CART (AJAX)
+  // ==========================================
+  const addToCartButtons = document.querySelectorAll('.js-add-to-cart');
+  addToCartButtons.forEach(button => {
+    button.addEventListener('click', (e) => {
+      e.preventDefault();
+      const productId = button.getAttribute('data-product-id');
+      if (!productId) return;
+
+      button.disabled = true;
+      const originalText = button.textContent;
+      button.textContent = 'Adding...';
+
+      postCartAction({
+        action: 'add_to_cart',
+        product_id: productId
+      }).then((data) => {
+        button.textContent = 'Added ✓';
+        if (typeof data.cart_count !== 'undefined') {
+          updateCartBadge(data.cart_count);
+        }
+        setTimeout(() => {
+          button.textContent = originalText;
+          button.disabled = false;
+        }, 1200);
+      }).catch(() => {
+        button.textContent = originalText;
+        button.disabled = false;
+        alert('Failed to add item. Please try again.');
+      });
+    });
+  });
+
+  const addToCartForm = document.querySelector('form[data-add-to-cart="true"]');
+  if (addToCartForm) {
+    addToCartForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const productId = addToCartForm.querySelector('input[name="product_id"]')?.value;
+      const submitBtn = addToCartForm.querySelector('button[type="submit"]');
+      if (!productId || !submitBtn) return;
+
+      submitBtn.disabled = true;
+      const originalText = submitBtn.textContent;
+      submitBtn.textContent = 'Adding...';
+
+      postCartAction({
+        action: 'add_to_cart',
+        product_id: productId
+      }).then((data) => {
+        submitBtn.textContent = 'Added ✓';
+        if (typeof data.cart_count !== 'undefined') {
+          updateCartBadge(data.cart_count);
+        }
+        setTimeout(() => {
+          submitBtn.textContent = originalText;
+          submitBtn.disabled = false;
+        }, 1200);
+      }).catch(() => {
+        submitBtn.textContent = originalText;
+        submitBtn.disabled = false;
+        alert('Failed to add item. Please try again.');
+      });
+    });
   }
 
 });

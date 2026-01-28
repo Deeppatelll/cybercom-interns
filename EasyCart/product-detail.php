@@ -2,6 +2,13 @@
 session_start();
 require_once __DIR__ . '/data/products.data.php';
 
+$cart_count = 0;
+if (!empty($_SESSION['cart'])) {
+  foreach ($_SESSION['cart'] as $item) {
+    $cart_count += (int)$item['quantity'];
+  }
+}
+
 // Get product ID from URL parameter
 $product_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
@@ -47,6 +54,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_to_cart'])) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Product Details - EasyCart</title>
   <link rel="stylesheet" href="styles.css">
+  <script src="assets/js/phase3.js"></script>
 </head>
 <body>
   <header>
@@ -56,7 +64,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_to_cart'])) {
         <ul class="nav-links">
           <li><a href="index.php">Home</a></li>
           <li><a href="products.php" class="active">Products</a></li>
-          <li><a href="cart.php">Cart</a></li>
+          <li><a href="cart.php">Cart<?php if ($cart_count > 0): ?><span class="cart-badge"><?php echo $cart_count; ?></span><?php endif; ?></a></li>
           <li><a href="login.php">Login</a></li>
         </ul>
       </nav>
@@ -71,9 +79,18 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_to_cart'])) {
     <div class="container">
       <?php if($product): ?>
       <div class="product-detail-container">
-        <div class="product-detail-image">
-          <img src="<?php echo $product['image']; ?>" alt="<?php echo $product['name']; ?>">
-        </div>
+        <div class="product-gallery">
+
+  <div class="product-main-image">
+    <img id="mainProductImage" 
+         src="<?php echo $product['image']; ?>" 
+         alt="<?php echo $product['name']; ?>">
+  </div>
+
+  <div class="product-thumbnails" id="productThumbnails"></div>
+
+</div>
+
 
         <div class="product-detail-info">
           <h1><?php echo $product['name']; ?></h1>
@@ -97,7 +114,8 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_to_cart'])) {
           </div>
 
           <div class="detail-actions">
-            <form method="POST">
+            <form method="POST" data-add-to-cart="true">
+              <input type="hidden" name="product_id" value="<?php echo $product['id']; ?>">
               <button type="submit" name="add_to_cart" class="btn btn-primary">Add to Cart</button>
             </form>
             <a href="products.php" class="btn btn-secondary">Back to Products</a>
@@ -187,6 +205,6 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_to_cart'])) {
       </div>
     </div>
   </footer>
-  <script src="assets/js/phase3.js"></script>
 </body>
 </html>
+
