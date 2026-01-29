@@ -523,9 +523,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // ==========================================
   // 5. PRODUCT DETAIL GALLERY
   // ==========================================
- // ==========================================
-// 5. PRODUCT DETAIL GALLERY (FINAL FIXED)
-// ==========================================
+
 
 if (document.location.pathname.includes('product-detail.php')) {
 
@@ -660,3 +658,4 @@ if (document.location.pathname.includes('product-detail.php')) {
   }
 
 });
+
