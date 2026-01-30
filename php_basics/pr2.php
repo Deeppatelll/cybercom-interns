@@ -40,7 +40,16 @@ for ($i = 1; $i <= 10; $i++) {
 }
 
 
+$student = [
+    "name" => "Rahul",
+    "age" => 20,
+    "course" => "BCA",
+    "city" => "Delhi"
+];
 
+foreach ($student as $key => $value) {
+    echo "$key : $value <br>";
+}
 $k=1;
 
 while($k<10)
