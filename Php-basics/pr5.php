@@ -36,4 +36,29 @@ $mgr = new Manager("Deep", 75000, "IT");
 echo $mgr->getDetails() . "<br>";
 echo $mgr->report();
 
+//task 2
+class User {
+    private $data = [];
+
+    public function __set($property, $value) {
+        $this->data[$property] = $value;
+    }
+
+    public function __get($property) {
+        return "The property '$property' does not exist.";
+    }
+
+    public function __toString() {
+        return json_encode($this->data);
+    }
+}
+
+$u = new User();
+
+$u->name = "Deep";
+$u->email = "deep@example.com";
+
+echo $u . "<br>";
+echo $u->address;
+
 ?>
