@@ -27,5 +27,39 @@ function getFullName(string $first, string $last): string {
 }
 
 echo getFullName("John", "Doe");
+//task 2 
+$text = "  Hello World  ";
+
+$trimmed = trim($text);
+$lower = strtolower($trimmed);
+$final = str_replace("World", "PHP", $lower);
+
+echo "Original: '$text' <br>";
+echo "Trimmed: '$trimmed' <br>";
+echo "Lowercase: '$lower' <br>";
+echo "Replaced: '$final' <br><br>";
+
+$numbers = [1, 3, 5, 7];
+
+if (in_array(5, $numbers)) {
+    echo "5 exists in the array <br>";
+}
+
+array_push($numbers, 9);
+
+$extra = [11, 13];
+$merged = array_merge($numbers, $extra);
+
+print_r($merged);
+
+echo "<br><br>";
+
+$email = "  User@Example.com  ";
+$cleanEmail = strtolower(trim($email));
+echo "Clean Email: $cleanEmail <br>";
+
+$files = ["image.jpg", "script.js", "style.css"];
+$parts = explode(".", $files[0]);
+print_r($parts);
 
 ?>
