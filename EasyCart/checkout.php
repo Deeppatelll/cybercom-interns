@@ -1,0 +1,278 @@
+<?php
+
+session_start();
+require_once __DIR__ . '/data/products.data.php';
+
+$cart_count = 0;
+if (!empty($_SESSION['cart'])) {
+  foreach ($_SESSION['cart'] as $item) {
+    $cart_count += (int)$item['quantity'];
+  }
+}
+
+// Get cart data and calculate totals
+$cart_items = isset($_SESSION['cart']) ? $_SESSION['cart'] : array();
+$subtotal = $_SESSION['subtotal'] ?? 0;
+
+$shipping_method = $_SESSION['shipping'] ?? 'standard';
+$shipping_cost   = $_SESSION['shipping_cost'] ?? 40;
+
+$shipping_labels = [
+  'standard' => 'Standard Shipping',
+  'express' => 'Express Shipping',
+  'white_glove' => 'White Glove Delivery',
+  'freight' => 'Freight Shipping'
+];
+
+$shipping_label = $shipping_labels[$shipping_method] ?? ucfirst($shipping_method);
+
+$subtotal_before_tax = $subtotal + $shipping_cost;
+
+$gst = $subtotal_before_tax * 0.18;
+
+$total = $subtotal_before_tax + $gst;
+
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout - EasyCart</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header>
+    <div class="header-container">
+      <div class="logo">🛒 EasyCart</div>
+      <nav>
+        <ul class="nav-links">
+          <li><a href="index.php">Home</a></li>
+          <li><a href="products.php">Products</a></li>
+          <li><a href="cart.php" class="active">Cart<?php if ($cart_count > 0): ?><span class="cart-badge"><?php echo $cart_count; ?></span><?php endif; ?></a></li>
+          <li><a href="login.php">Login</a></li>
+        </ul>
+      </nav>
+      <form method="GET" action="products.php" style="display: flex; align-items: center; margin-left: 2rem;">
+        <input type="text" name="search" placeholder="Search products..." style="padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 4px; width: 200px;">
+        <button type="submit" style="margin-left: 8px; padding: 8px 16px; background-color: var(--primary-color); color: white; border: none; border-radius: 4px; cursor: pointer;">Search</button>
+      </form>
+    </div>
+  </header>
+
+  <main>
+    <div class="page-container">
+      <h1 class="page-title">Checkout</h1>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+        <div>
+          <h2 style="font-size: 1.3rem; margin-bottom: 1.5rem;">Shipping Address</h2>
+          
+          <form>
+            <div class="form-group">
+              <label for="fullname">Full Name</label>
+              <input type="text" id="fullname" placeholder="Enter your full name" value="Rahul Kumar">
+            </div>
+
+            <div class="form-group">
+              <label for="email">Email Address</label>
+              <input type="email" id="email" placeholder="your@email.com" value="rahul@example.com">
+            </div>
+
+            <div class="form-group">
+              <label for="phone">Phone Number</label>
+              <input type="tel" id="phone" placeholder="+91 XXXXX XXXXX" value="+91 98765 43210">
+            </div>
+
+            <div class="form-group">
+              <label for="address">Address</label>
+              <input type="text" id="address" placeholder="Street address" value="123 Main Street, Apt 4B">
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+              <div class="form-group">
+                <label for="city">City</label>
+                <input type="text" id="city" placeholder="City" value="New Delhi">
+              </div>
+
+              <div class="form-group">
+                <label for="zip">ZIP Code</label>
+                <input type="text" id="zip" placeholder="ZIP code" value="110001">
+              </div>
+            </div>
+          </form>
+
+          <div class="payment-options">
+            <h2 style="font-size: 1.3rem; margin-bottom: 1rem;">Payment Method</h2>
+
+            <label class="payment-option">
+              <input type="radio" name="payment_method" value="card">
+              Credit / Debit Card
+            </label>
+            <label class="payment-option">
+              <input type="radio" name="payment_method" value="upi">
+              UPI (Google Pay, PhonePe, Paytm)
+            </label>
+            <label class="payment-option">
+              <input type="radio" name="payment_method" value="cod">
+              Cash on Delivery
+            </label>
+
+            <div class="payment-details hidden" data-payment="card">
+              <div class="form-group">
+                <label for="card_name">Name on Card</label>
+                <input type="text" id="card_name" placeholder="Full name">
+              </div>
+              <div class="form-group">
+                <label for="card_number">Card Number</label>
+                <input type="text" id="card_number" placeholder="1234 5678 9012 3456">
+              </div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div class="form-group">
+                  <label for="card_expiry">Expiry</label>
+                  <input type="text" id="card_expiry" placeholder="MM/YY">
+                </div>
+                <div class="form-group">
+                  <label for="card_cvv">CVV</label>
+                  <input type="text" id="card_cvv" placeholder="123">
+                </div>
+              </div>
+            </div>
+
+            <div class="payment-details hidden" data-payment="upi">
+              <div class="form-group">
+                <label for="upi_id">UPI ID</label>
+                <input type="text" id="upi_id" placeholder="name@bank">
+              </div>
+            </div>
+
+            <div class="payment-details hidden" data-payment="cod">
+              <p style="color: var(--text-light); margin: 0;">Pay with cash when your order is delivered.</p>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="order-summary">
+            <h2 style="font-size: 1.3rem; margin-bottom: 1.5rem;">Order Summary</h2>
+            
+            <div style="background: var(--white); padding: 1rem; border-radius: 6px; margin-bottom: 1.5rem;">
+              <h3 style="font-size: 1rem; margin-bottom: 1rem;">Items in Order</h3>
+              
+              <?php 
+              if(count($cart_items) > 0):
+                foreach($cart_items as $item):
+                  $product = getProductById($item['id'], $products);
+                  if($product):
+                    $item_total = $product['price'] * $item['quantity'];
+              ?>
+              <div style="display: flex; justify-content: space-between; margin-bottom: 0.75rem; padding-bottom: 0.75rem; border-bottom: 1px solid var(--border-color);">
+                <span><?php echo $product['name'] . ' (' . $item['quantity'] . ')'; ?></span>
+                <span>₹<?php echo $item_total; ?></span>
+              </div>
+              <?php 
+                  endif;
+                endforeach;
+              else:
+              ?>
+              <p style="color: var(--text-light);">No items in your cart</p>
+              <?php 
+              endif; 
+              ?>
+            </div>
+
+            <div class="summary-row">
+              <span>Subtotal</span>
+              <span>₹<?php echo $subtotal; ?></span>
+            </div>
+
+            <div class="summary-row">
+  <span>Shipping (<?php echo $shipping_label; ?>)</span>
+  <span>₹<?php echo $shipping_cost; ?></span>
+</div>
+
+
+            <div class="summary-row">
+              <span>Subtotal (before tax)</span>
+              <span>₹<?php echo $subtotal_before_tax; ?></span>
+            </div>
+
+            <div class="summary-row gst">
+              <span>GST(18%)</span>
+              <span>₹<?php echo number_format($gst, 2); ?></span>
+            </div>
+
+            <div class="summary-row total">
+              <span>Total Amount</span>
+              <span>₹<?php echo number_format($total, 2); ?></span>
+            </div>
+
+            <div class="tax-note">
+              ✓ GST included as per Indian tax regulations<br>
+              ✓ Prices inclusive of applicable taxes
+            </div>
+
+            <form method="POST" action="orders.php">
+  <button type="submit"
+          class="btn btn-primary"
+          style="width:100%;margin-top:2rem;">
+    Place Order
+  </button>
+</form>
+
+
+            <a href="cart.php" class="btn btn-secondary" style="width: 100%; text-align: center; display: block; padding: 12px 32px; margin-top: 1rem;">
+              Back to Cart
+            </a>
+
+            <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color); text-align: center; color: var(--text-light); font-size: 0.9rem;">
+              <p>✓ Secure checkout with SSL encryption</p>
+              <p>✓ Fresh items are non-returnable</p>
+              <p>⏱ Delivery within 30–60 minutes</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-section">
+          <h4>About Us</h4>
+          <a href="#">About EasyCart</a>
+          <a href="#">Our Mission</a>
+          <a href="#">Blog</a>
+        </div>
+
+        <div class="footer-section">
+          <h4>Help</h4>
+          <a href="#">FAQ</a>
+          <a href="#">Contact Us</a>
+          <a href="#">Track Order</a>
+        </div>
+
+        <div class="footer-section">
+          <h4>Policy</h4>
+          <a href="#">Privacy Policy</a>
+          <a href="#">Terms & Conditions</a>
+          <a href="#">Refund Policy</a>
+        </div>
+
+        <div class="footer-section">
+          <h4>Follow Us</h4>
+          <a href="#">Facebook</a>
+          <a href="#">Instagram</a>
+          <a href="#">Twitter</a>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p>&copy; 2024 EasyCart. All rights reserved. Grocery Delivery Made Easy.</p>
+      </div>
+    </div>
+  </footer>
+  <script src="assets/js/phase3.js"></script>
+</body>
+</html>

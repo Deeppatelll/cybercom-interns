@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day 4 - HTML FORMS</title>
+</head>
+<link rel="stylesheet" href="assets/css/style.css">
+<body>
+
+<header>
+    <h1>Cybercom Creation Registration</h1>
+</header>
+
+<form>
+
+  <div class="form-container">
+
+    
+    <div class="form-section">
+      <h2>General Information</h2>
+
+      <label for="fname">First Name</label>
+      <input type="text" id="fname" name="first_name">
+
+      <label for="lname">Last Name</label>
+      <input type="text" id="lname" name="last_name">
+
+      <label for="email">Email</label>
+      <input type="email" id="email" name="email">
+
+      <label for="password">Password</label>
+      <input type="password" id="password" name="password">
+
+      <label for="dob">Date of Birth</label>
+      <input type="date" id="dob" name="dob">
+
+      <label>Gender</label>
+      <div class="inline-options">
+        <input type="radio" id="male" name="gender">
+        <label for="male">Male</label>
+
+        <input type="radio" id="female" name="gender">
+        <label for="female">Female</label>
+      </div>
+    </div>
+
+   
+    <div class="form-section">
+      <h3>Additional Information</h3>
+
+      <label for="phone">Phone</label>
+      <input type="tel" id="phone" name="phone">
+
+      <label for="address">Address</label>
+      <textarea id="address" name="address" rows="3"></textarea>
+
+      <label for="city">City</label>
+      <input type="text" id="city" name="city">
+
+      <label for="course">Course</label>
+      <select id="course" name="course">
+        <option value="">Select Course</option>
+        <option value="web">Web Development</option>
+        <option value="java">Java</option>
+        <option value="mern">MERN Stack</option>
+      </select>
+
+      <label>Skills</label>
+      <div class="inline-options">
+        <input type="checkbox" id="html" name="skills">
+        <label for="html">HTML</label>
+
+        <input type="checkbox" id="css" name="skills">
+        <label for="css">CSS</label>
+
+        <input type="checkbox" id="js" name="skills">
+        <label for="js">JavaScript</label>
+      </div>
+    </div>
+
+  </div>
+
+  <button type="submit">Register</button>
+
+</form>
+
+
+</body>
+</html>
