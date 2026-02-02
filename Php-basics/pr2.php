@@ -35,4 +35,32 @@ switch ($day) {
         echo "Invalid day";
 }
 
+//task 2 
+for ($i = 1; $i <= 10; $i++) {
+    echo "5 x $i = " . (5 * $i) . "<br>";
+}
+
+echo "<br>";
+
+$student = [
+    "name" => "Deep",
+    "age" => 21,
+    "course" => "Computer Science"
+];
+
+foreach ($student as $key => $value) {
+    echo "$key: $value <br>";
+}
+
+echo "<br>";
+
+$count = 1;
+
+while ($count <= 5) {
+    echo "Count: $count <br>";
+    $count++;
+}
+
+
+
 ?>
