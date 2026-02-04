@@ -1,0 +1,31 @@
+/* =========================================
+   CHECKOUT
+   ========================================= */
+
+.payment-options {
+  margin-top: 1.5rem;
+}
+
+.payment-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 16px 10px 0;
+  font-weight: 500;
+}
+
+.payment-option input {
+  margin-right: 0;
+}
+
+.payment-details {
+  margin-top: 0.75rem;
+  padding: 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: #fff;
+}
+
+.payment-details.hidden {
+  display: none;
+}
