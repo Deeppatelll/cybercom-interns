@@ -1,5 +1,5 @@
 <?php
-__DIR__ . '/app/Sdp.php';
+
 spl_autoload_register(function(string $classss)
 {
   $base=__DIR__.'\\';
